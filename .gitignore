@@ -1,0 +1,3 @@
+.vscode
+*.o
+sodium/build/sodium
