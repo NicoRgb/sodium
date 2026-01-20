@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <signal.h>
 #include <unistd.h> // for getopt
 
 struct
@@ -72,12 +73,66 @@ void parse_arguments(int argc, char **argv)
     }
 }
 
+void prompt(void)
+{
+    char *line = NULL;
+    size_t len = 0;
+
+    printf("Sodium REPL (Ctrl+D to exit)\n");
+
+    while (true)
+    {
+        printf("$ ");
+        fflush(stdout);
+
+        ssize_t nread = getline(&line, &len, stdin);
+        if (nread == -1)
+        {
+            printf("\n");
+            break;
+        }
+
+        if (nread > 0 && line[nread - 1] == '\n')
+        {
+            line[nread - 1] = '\0';
+        }
+
+        if (line[0] == '\0')
+        {
+            continue;
+        }
+
+        if (strcmp(line, "exit") == 0 || strcmp(line, "quit") == 0)
+        {
+            break;
+        }
+
+        printf("You entered: %s\n", line);
+    }
+
+    free(line);
+}
+
+void handle_sigint(int sig)
+{
+    (void)sig;
+    printf("\nCtrl+C pressed, use Ctrl+D to exit or type 'exit', continuing...\n");
+    printf("$ ");
+    fflush(stdout);
+}
+
 int main(int argc, char **argv)
 {
     parse_arguments(argc, argv);
     if (compiler_options.verbose_output && compiler_options.input_file != NULL)
     {
         printf("evaluating file '%s'\n", compiler_options.input_file);
+    }
+
+    if (compiler_options.input_file == NULL)
+    {
+        signal(SIGINT, handle_sigint);
+        prompt();
     }
 
     free(compiler_options.input_file);
