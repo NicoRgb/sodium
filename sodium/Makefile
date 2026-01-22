@@ -1,5 +1,5 @@
 CFLAGS := -Wall -Wextra -Wpedantic -Werror -g -O0
-COBJS := build/main.o
+COBJS := build/main.o build/lexer.o
 
 build/%.o: src/%.c
 	@mkdir -p $(@D)

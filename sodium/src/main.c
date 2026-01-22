@@ -5,6 +5,8 @@
 #include <signal.h>
 #include <unistd.h> // for getopt
 
+#include <lexer.h>
+
 struct
 {
     bool verbose_output;
@@ -107,7 +109,13 @@ void prompt(void)
             break;
         }
 
-        printf("You entered: %s\n", line);
+        lex(NULL, NULL);
+
+        token_t tok;
+        while (lex(&tok, line))
+        {
+            printf("token (%d): '%s', %ld\n", tok.type, tok.text, tok.intval);
+        }
     }
 
     free(line);
