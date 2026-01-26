@@ -1,0 +1,20 @@
+expr                    : additive_expr
+                        ;
+
+additive_expr           : multiplicative_expr
+                        | additive_expr '+' multiplicative_expr
+                        | additive_expr '-' multiplicative_expr
+                        ;
+
+multiplicative_expr     : primary
+                        | multiplicative_expr '*' primary
+                        | multiplicative_expr '/' primary
+                        ;
+
+primary                 : unary_expr
+                        ;
+
+unary_expr              : '+' unary_expr
+                        : '-' unary_expr
+                        : INTLIT
+                        ;

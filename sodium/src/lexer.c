@@ -1,7 +1,27 @@
 #include <lexer.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include <assert.h>
+
+const char *TOKEN_NAMES[] = {
+    "TOK_PLUS",
+    "TOK_MINUS",
+    "TOK_MUL",
+    "TOK_DIV",
+    "TOK_LPAREN",
+    "TOK_RPAREN",
+    "TOK_INTLIT",
+};
+
+token_t *token_clone(token_t *tok)
+{
+    token_t *res = malloc(sizeof(token_t));
+    memcpy(res, tok, sizeof(token_t));
+
+    return res;
+}
 
 static token_t *match_token(token_t *tok, const char *text, size_t *idx)
 {
@@ -87,25 +107,25 @@ static token_t *match_token(token_t *tok, const char *text, size_t *idx)
     return NULL;
 }
 
-static size_t index = 0;
+static size_t lex_index = 0;
 
 token_t *lex(token_t *tok, const char *text)
 {
     if (!text)
     {
-        index = 0;
+        lex_index = 0;
         return NULL;
     }
 
     assert(tok);
     assert(text);
 
-    if (!text[index])
+    if (!text[lex_index])
     {
         return NULL;
     }
 
-    return match_token(tok, text, &index);
+    return match_token(tok, text, &lex_index);
 }
 
 token_t *peek(token_t *tok, const char *text)
@@ -113,11 +133,11 @@ token_t *peek(token_t *tok, const char *text)
     assert(tok);
     assert(text);
 
-    if (!text[index])
+    if (!text[lex_index])
     {
         return NULL;
     }
 
-    size_t idx = index;
+    size_t idx = lex_index;
     return match_token(tok, text, &idx);
 }

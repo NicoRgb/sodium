@@ -6,7 +6,7 @@
 
 typedef enum
 {
-    TOK_PLUS,
+    TOK_PLUS = 0,
     TOK_MINUS,
     TOK_MUL,
     TOK_DIV,
@@ -14,6 +14,8 @@ typedef enum
     TOK_RPAREN,
     TOK_INTLIT,
 } token_type_t;
+
+extern const char *TOKEN_NAMES[];
 
 typedef struct
 {
@@ -23,6 +25,8 @@ typedef struct
     
     uint64_t intval;
 } token_t;
+
+token_t *token_clone(token_t *tok);
 
 // lex(NULL, NULL) to reset
 token_t *lex(token_t *tok, const char *text);

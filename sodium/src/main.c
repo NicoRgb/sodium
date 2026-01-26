@@ -6,6 +6,7 @@
 #include <unistd.h> // for getopt
 
 #include <lexer.h>
+#include <parser.h>
 
 struct
 {
@@ -111,11 +112,8 @@ void prompt(void)
 
         lex(NULL, NULL);
 
-        token_t tok;
-        while (lex(&tok, line))
-        {
-            printf("token (%d): '%s', %ld\n", tok.type, tok.text, tok.intval);
-        }
+        node_t *AST = parse(line);
+        print_ast(AST);
     }
 
     free(line);
