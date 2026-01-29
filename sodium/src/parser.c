@@ -95,7 +95,7 @@ static node_t *node_create(void)
             set_error(&err);                \
             return NULL;                    \
         }                                   \
-    } while (1)
+    } while (0)
 
 static node_t *binary_expression(node_t *(func)(void), token_type_t op1, token_type_t op2)
 {
