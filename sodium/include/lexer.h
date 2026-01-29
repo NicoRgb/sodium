@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <serror.h>
+
 typedef enum
 {
     TOK_PLUS = 0,
@@ -22,6 +24,8 @@ typedef struct
     token_type_t type;
     const char *text;
     size_t len;
+
+    position_t start, end;
     
     uint64_t intval;
 } token_t;

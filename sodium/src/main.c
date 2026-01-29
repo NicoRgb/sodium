@@ -7,6 +7,7 @@
 
 #include <lexer.h>
 #include <parser.h>
+#include <serror.h>
 
 struct
 {
@@ -111,8 +112,15 @@ void prompt(void)
         }
 
         lex(NULL, NULL);
+        unset_error();
 
         node_t *AST = parse(line);
+        if (is_error())
+        {
+            print_error(get_error());
+            continue;
+        }
+
         print_ast(AST);
     }
 

@@ -6,6 +6,7 @@
 
 static token_t tok;
 static const char *text;
+static error_t err;
 
 static void print_token(token_t *tok)
 {
@@ -16,7 +17,8 @@ static void print_ast_indent(node_t *ast, uint8_t indent)
 {
     if (!ast)
     {
-        for (uint8_t i = 0; i < indent+2; i++) printf(" ");
+        for (uint8_t i = 0; i < indent + 2; i++)
+            printf(" ");
         printf("NULL\n");
         return;
     }
@@ -24,33 +26,38 @@ static void print_ast_indent(node_t *ast, uint8_t indent)
     switch (ast->type)
     {
     case NODE_TYPE_BINARY_EXPR:
-        for (uint8_t i = 0; i < indent; i++) printf(" ");
+        for (uint8_t i = 0; i < indent; i++)
+            printf(" ");
         printf("BINARY EXPR\n");
-        print_ast_indent(ast->left, indent+2);
+        print_ast_indent(ast->left, indent + 2);
         if (ast->tok)
         {
-            for (uint8_t i = 0; i < indent+2; i++) printf(" ");
+            for (uint8_t i = 0; i < indent + 2; i++)
+                printf(" ");
             print_token(ast->tok);
 
-            print_ast_indent(ast->right, indent+2);
+            print_ast_indent(ast->right, indent + 2);
         }
         break;
 
     case NODE_TYPE_UNARY_EXPR:
-        for (uint8_t i = 0; i < indent; i++) printf(" ");
+        for (uint8_t i = 0; i < indent; i++)
+            printf(" ");
         printf("UNARY EXPR\n");
 
-        for (uint8_t i = 0; i < indent+2; i++) printf(" ");
+        for (uint8_t i = 0; i < indent + 2; i++)
+            printf(" ");
         print_token(ast->tok);
 
         if (ast->left)
         {
-            print_ast_indent(ast->left, indent+2);
+            print_ast_indent(ast->left, indent + 2);
         }
         break;
-    
+
     default:
-        for (uint8_t i = 0; i < indent+2; i++) printf(" ");
+        for (uint8_t i = 0; i < indent + 2; i++)
+            printf(" ");
         printf("UNKNOWN NODE TYPE\n");
         break;
     }
@@ -68,11 +75,36 @@ static node_t *node_create(void)
     return res;
 }
 
+#define CHECK_ERROR() \
+    if (is_error())   \
+        return NULL;
+
+#define CHECK_TOK(f)                        \
+    do                                      \
+    {                                       \
+        token_t *_r = f;                    \
+        if (is_error())                     \
+            return NULL;                    \
+                                            \
+        if (!_r)                            \
+        {                                   \
+            err.start = tok.start;          \
+            err.end = tok.end;              \
+            err.message = "unexpected EOF"; \
+                                            \
+            set_error(&err);                \
+            return NULL;                    \
+        }                                   \
+    } while (1)
+
 static node_t *binary_expression(node_t *(func)(void), token_type_t op1, token_type_t op2)
 {
     node_t *left = func();
+    CHECK_ERROR();
 
     peek(&tok, text);
+    CHECK_ERROR();
+
     while (tok.type == op1 || tok.type == op2)
     {
         node_t *node = node_create();
@@ -80,10 +112,12 @@ static node_t *binary_expression(node_t *(func)(void), token_type_t op1, token_t
         node->left = left;
         node->tok = token_clone(lex(&tok, text));
         node->right = func();
+        CHECK_ERROR();
 
         left = node;
 
         peek(&tok, text);
+        CHECK_ERROR();
     }
 
     return left;
@@ -123,7 +157,8 @@ static node_t *primary(void)
 
 static node_t *unary_expr(void)
 {
-    peek(&tok, text);
+    CHECK_TOK(peek(&tok, text));
+
     if (tok.type == TOK_INTLIT)
     {
         node_t *node = node_create();
@@ -137,8 +172,15 @@ static node_t *unary_expr(void)
         node->type = NODE_TYPE_UNARY_EXPR;
         node->tok = token_clone(lex(&tok, text));
         node->left = unary_expr();
+        CHECK_ERROR();
+
         return node;
     }
 
+    err.start = tok.start;
+    err.end = tok.end;
+    err.message = "expected '+', '-' or INTLIT";
+
+    set_error(&err);
     return NULL;
 }
