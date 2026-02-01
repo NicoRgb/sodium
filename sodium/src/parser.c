@@ -114,6 +114,9 @@ static node_t *binary_expression(node_t *(func)(void), token_type_t op1, token_t
         node->right = func();
         CHECK_ERROR();
 
+        node->start = left->start;
+        node->end = node->right->end;
+
         left = node;
 
         peek(&tok, text);
@@ -164,6 +167,8 @@ static node_t *unary_expr(void)
         node_t *node = node_create();
         node->type = NODE_TYPE_UNARY_EXPR;
         node->tok = token_clone(lex(&tok, text));
+        node->start = node->tok->start;
+        node->end = node->tok->end;
         return node;
     }
     else if (tok.type == TOK_PLUS || tok.type == TOK_MINUS)
@@ -172,6 +177,8 @@ static node_t *unary_expr(void)
         node->type = NODE_TYPE_UNARY_EXPR;
         node->tok = token_clone(lex(&tok, text));
         node->left = unary_expr();
+        node->start = node->tok->start;
+        node->end = node->left->end;
         CHECK_ERROR();
 
         return node;

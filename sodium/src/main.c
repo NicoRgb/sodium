@@ -8,6 +8,7 @@
 #include <lexer.h>
 #include <parser.h>
 #include <serror.h>
+#include <interpreter.h>
 
 struct
 {
@@ -121,7 +122,16 @@ void prompt(void)
             continue;
         }
 
-        print_ast(AST);
+        if (compiler_options.verbose_output)
+        {
+            print_ast(AST);
+        }
+        
+        printf("%ld\n", evaluate(AST));
+        if (is_error())
+        {
+            print_error(get_error());
+        }
     }
 
     free(line);

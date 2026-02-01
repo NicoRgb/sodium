@@ -18,6 +18,8 @@ typedef struct _node
     struct _node *left;
     struct _node *right;
     token_t *tok;
+
+    position_t start, end;
 } node_t;
 
 void print_ast(node_t *ast);
