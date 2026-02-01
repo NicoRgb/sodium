@@ -119,6 +119,7 @@ void prompt(void)
         if (is_error())
         {
             print_error(get_error());
+            free_ast();
             continue;
         }
 
@@ -132,6 +133,8 @@ void prompt(void)
         {
             print_error(get_error());
         }
+
+        free_ast();
     }
 
     free(line);

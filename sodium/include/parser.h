@@ -23,6 +23,7 @@ typedef struct _node
 } node_t;
 
 void print_ast(node_t *ast);
+void free_ast(void);
 node_t *parse(const char *text);
 
 #endif

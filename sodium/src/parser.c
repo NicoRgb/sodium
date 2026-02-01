@@ -68,11 +68,48 @@ void print_ast(node_t *ast)
     print_ast_indent(ast, 0);
 }
 
+typedef struct _node_link
+{
+    node_t node;
+    struct _node_link *next;
+} node_link_t;
+
+static node_link_t *head;
+
 static node_t *node_create(void)
 {
-    node_t *res = malloc(sizeof(node_t));
-    memset(res, 0, sizeof(node_t));
-    return res;
+    node_link_t *res = malloc(sizeof(node_link_t));
+    memset(res, 0, sizeof(node_link_t));
+
+    if (head)
+    {
+        res->next = head;
+    }
+    head = res;
+
+    return (node_t *)res;
+}
+
+void free_ast(void)
+{
+    if (!head)
+    {
+        return;
+    }
+
+    node_link_t *next = NULL;
+    for (node_link_t *link = head; link != NULL; link = next)
+    {
+        if (link->node.tok)
+        {
+            free(link->node.tok);
+        }
+
+        next = link->next;
+        free(link);
+    }
+
+    head = NULL;
 }
 
 #define CHECK_ERROR() \
