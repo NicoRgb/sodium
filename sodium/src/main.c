@@ -162,6 +162,50 @@ int main(int argc, char **argv)
         prompt();
     }
 
+    if (compiler_options.input_file)
+    {
+        FILE *fp = fopen(compiler_options.input_file, "r");
+        if (fp == NULL)
+        {
+            fprintf(stderr, "critical failure: failed to open file '%s'\n", compiler_options.input_file);
+            exit(1);
+        }
+
+        fseek(fp, 0, SEEK_END);
+        long fsize = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        char *script = malloc(fsize + 1);
+        fread(script, fsize, 1, fp);
+        script[fsize] = 0;
+
+        // execute script
+        lex(NULL, NULL);
+        unset_error();
+
+        node_t *AST = parse(script);
+        if (is_error())
+        {
+            print_error(get_error());
+            goto exit;
+        }
+
+        if (compiler_options.verbose_output)
+        {
+            print_ast(AST);
+        }
+        
+        printf("%ld\n", evaluate(AST));
+        if (is_error())
+        {
+            print_error(get_error());
+        }
+
+    exit:
+        free_ast();
+        free(script);
+    }
+
     free(compiler_options.input_file);
     return 0;
 }

@@ -41,6 +41,8 @@ static token_t *match_token(token_t *tok, const char *text, size_t *idx)
     {
         line++;
         column = 1;
+        (*idx)++;
+        return match_token(tok, text, idx);
     }
     else if (isspace(text[*idx]))
     {
