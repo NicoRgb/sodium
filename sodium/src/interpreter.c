@@ -37,7 +37,7 @@ uint64_t evaluate_binary_expr(node_t *node)
     case TOK_PLUS:
         return EVALUATE(node->left) + EVALUATE(node->right);
     case TOK_MINUS:
-        return -EVALUATE(node->left) - EVALUATE(node->right);
+        return EVALUATE(node->left) - EVALUATE(node->right);
     case TOK_MUL:
         return EVALUATE(node->left) * EVALUATE(node->right);
     case TOK_DIV:
@@ -53,7 +53,7 @@ uint64_t evaluate_binary_expr(node_t *node)
             return 0;
         }
 
-        return -EVALUATE(node->left) / divisor;
+        return EVALUATE(node->left) / divisor;
     }
     default:
         assert(false);
