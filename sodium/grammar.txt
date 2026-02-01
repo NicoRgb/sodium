@@ -12,6 +12,7 @@ multiplicative_expr     : primary
                         ;
 
 primary                 : unary_expr
+                        | '(' expr ')'
                         ;
 
 unary_expr              : '+' unary_expr

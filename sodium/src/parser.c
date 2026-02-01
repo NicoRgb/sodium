@@ -155,6 +155,28 @@ static node_t *multiplicative_expr(void)
 
 static node_t *primary(void)
 {
+    CHECK_TOK(peek(&tok, text));
+    if (tok.type == TOK_LPAREN)
+    {
+        lex(&tok, text);
+
+        node_t *node = expr();
+        CHECK_ERROR();
+
+        CHECK_TOK(lex(&tok, text));
+        if (tok.type != TOK_RPAREN)
+        {
+            err.start = tok.start;
+            err.end = tok.end;
+            err.message = "expected ')'";
+
+            set_error(&err);
+            return NULL;
+        }
+
+        return node;
+    }
+
     return unary_expr();
 }
 
@@ -186,7 +208,7 @@ static node_t *unary_expr(void)
 
     err.start = tok.start;
     err.end = tok.end;
-    err.message = "expected '+', '-' or INTLIT";
+    err.message = "expected '+', '-', '(' or INTLIT";
 
     set_error(&err);
     return NULL;
