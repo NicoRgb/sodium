@@ -200,6 +200,8 @@ static node_t *primary(void)
         node_t *node = expr();
         CHECK_ERROR();
 
+        node->start = tok.start;
+
         CHECK_TOK(lex(&tok, text));
         if (tok.type != TOK_RPAREN)
         {
@@ -210,6 +212,8 @@ static node_t *primary(void)
             set_error(&err);
             return NULL;
         }
+
+        node->end = tok.end;
 
         return node;
     }

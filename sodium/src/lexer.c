@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <libgen.h>
 #include <assert.h>
 
 const char *TOKEN_NAMES[] = {
@@ -15,6 +16,12 @@ const char *TOKEN_NAMES[] = {
     "TOK_INTLIT",
 };
 
+extern struct
+{
+    bool verbose_output;
+    char *input_file;
+} compiler_options;
+
 token_t *token_clone(token_t *tok)
 {
     token_t *res = malloc(sizeof(token_t));
@@ -25,13 +32,12 @@ token_t *token_clone(token_t *tok)
 
 static uint64_t line, column;
 
-#define CURRENT_POS(pos) \
-    pos.line = line;     \
-    pos.column = column; \
-    pos.index = *idx;    \
-    pos.file = "REPL";   \
+#define CURRENT_POS(pos)                              \
+    pos.line = line;                                  \
+    pos.column = column;                              \
+    pos.index = *idx;                                 \
+    pos.file = basename(compiler_options.input_file); \
     pos.text = text;
-
 
 static error_t err;
 
@@ -100,7 +106,10 @@ static token_t *match_token(token_t *tok, const char *text, size_t *idx)
         tok->text = &text[*idx];
         tok->len = 1;
 
+        CURRENT_POS(tok->start);
         (*idx)++;
+        column++;
+        CURRENT_POS(tok->end);
 
         return tok;
     }
